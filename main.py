@@ -1,6 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import whisper
 import uvicorn
 import os
 import jiwer
@@ -10,7 +9,6 @@ import numpy as np
 
 
 app = FastAPI()
-model = whisper.load_model("base")
 model0 = joblib.load("dyslexia_model.pkl")
 
 # 👇 Add this CORS middleware
@@ -27,8 +25,15 @@ app.add_middleware(
 UPLOAD_DIR = "temp_uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+@app.get("/")
+async def root():
+    return {"message": "App is working"}
+
+
 @app.post("/transcribe/")
 async def transcribe_audio(file: UploadFile = File(...)):
+    import whisper
+    model = whisper.load_model("tiny")
     
     # Path to save uploaded file
     # audio_path = os.path.join(directory, f"temp_{file.filename}")
